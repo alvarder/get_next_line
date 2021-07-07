@@ -26,12 +26,13 @@ int lineas(char **sta, char **line)
 		free (*sta);
 		*sta = tmp;
 		if ((*sta)[0] == '\0')
-			free(sta);
+			ft_libsup(sta);
 	}
 	else
 	{
 		*line = ft_strdup(*sta);
-		//limpiar(sta)
+		ft_libsup(sta);
+		return (0);
 	}
 	return (1);
 }
@@ -40,9 +41,11 @@ int	salida(char **sta, char **line, int a, int fd)
 {
 	if (a < 0)
 		return (-1);
-	else if (a == 0 && sta[fd] == NULL)
+	if (a == 0 && sta[fd] == NULL)
+	{
+		*line = ft_strdup("");
 		return (0);
-	else
+	}
 		return (lineas(&sta[fd], line));
 } 
 
@@ -54,9 +57,10 @@ int	get_next_line(int fd, char **line)
 	static char *sta[4096];
 	char buff[BUFF_SIZE + 1];
 
-	if (fd < 0)
+	if (fd < 0 || line == NULL || BUFF_SIZE < 1)
 		return(-1);
-	while((a = read (fd, buff, BUFF_SIZE)) > 0)
+	a = read (fd, buff, BUFF_SIZE);
+	while(a > 0)
 	{
 		buff[a] = 0;
 		if (sta[fd] == NULL)
@@ -69,15 +73,7 @@ int	get_next_line(int fd, char **line)
 		}
 		if (ft_strrchr(sta[fd], '\n'))
 			break;
+		a = read (fd, buff, BUFF_SIZE);
 	}
 	return(salida(sta, line, a, fd));
-}
-
-int main()
-{
-	int fd;
-	char **line = NULL;
-	
-	fd = open("texto.txt", O_RDONLY);
-	get_next_line(fd , line);
 }
