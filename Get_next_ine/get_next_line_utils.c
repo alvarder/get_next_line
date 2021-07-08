@@ -1,25 +1,26 @@
-#include <unistd.h>
-#include <stdlib.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: agarcia- </var/mail/agarcia->              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/07/08 16:10:40 by agarcia-          #+#    #+#             */
+/*   Updated: 2021/07/08 16:54:08 by agarcia-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-size_t	ft_strlen(const char *s)
-{
-	size_t a;
-
-	a = 0;
-	while (s[a] != '\0')
-	{
-		a++;
-	}
-	return (a);
-}
+#include	"get_next_line.h"
+#include	<unistd.h>
+#include	<stdlib.h>
 
 void	ft_libsup(char **as)
 {
-		if (as)
-		{
-			free(*as);
-			*as = NULL;
-		}
+	if (as)
+	{
+		free(*as);
+		*as = NULL;
+	}
 }
 
 char	*ft_strdup(const char *s1)
@@ -28,7 +29,8 @@ char	*ft_strdup(const char *s1)
 	char	*s2;
 
 	a = ft_strlen(s1);
-	if (!(s2 = malloc((a + 1) * sizeof(char))))
+	s2 = malloc((a + 1) * sizeof(char));
+	if (!s2)
 		return (0);
 	a = 0;
 	while (s1[a] != '\0')
@@ -50,7 +52,8 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	b = 0;
 	if (!s1 || !s2)
 		return (0);
-	if (!(s3 = malloc((ft_strlen(s1) + ft_strlen(s2) + 1) * sizeof(char))))
+	s3 = malloc((ft_strlen(s1) + ft_strlen(s2) + 1) * sizeof(char));
+	if (!s3)
 		return (0);
 	while (s1[a] != '\0')
 		s3[b++] = s1[a++];
@@ -94,7 +97,8 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 
 	a = 0;
 	b = 0;
-	if (!s || !(str = malloc(len + 1 * sizeof(char))))
+	(str = malloc(len + 1 * sizeof(char)));
+	if (!s || !str)
 		return (0);
 	while (s[a])
 	{
@@ -108,4 +112,3 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	str[b] = '\0';
 	return (str);
 }
- 
