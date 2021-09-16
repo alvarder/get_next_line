@@ -5,86 +5,69 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: agarcia- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*  Created: 2021/05/19 17:42:35 by agarcia-          #+#    #+#             */
-/*   Updated: 2021/07/08 16:58:07 by agarcia-         ###   ########.fr       */
+/*   Created: 2021/09/16 03:35:07 by agarcia-          #+#    #+#             */
+/*   Updated: 2021/09/16 05:33:29 by agarcia-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "get_next_line.h" 
 
-size_t	ft_strlen(const char *s)
+#include "get_next_line.h"
+
+char	*cleaner(char *line)
 {
-	size_t	a;
-
-	a = 0;
-	while (s[a] != '\0')
-	{
-		a++;
-	}
-	return (a);
+	free (line);
+	return (NULL);
 }
 
-int	lineas(char **sta, char **line)
+int	seleccionar(char *sta, char **line)
 {
-	int		a;
-	char	*tmp;
+	char	*aux;
+	char	*line2;
+	char	buff[BUFFER_SIZE + 1];
 
-	a = 0;
-	while ((*sta)[a] != '\n' && (*sta)[a] != '\0')
-		a++;
-	if ((*sta)[a] == '\n')
+	ft_bzero(buff, BUFFER_SIZE);
+	aux = ft_strchr(sta, '\n');
+	line2 = *line;
+	if (aux)
 	{
-		*line = ft_substr(*sta, 0, a);
-		tmp = ft_strdup(&((*sta)[a + 1]));
-		free (*sta);
-		*sta = tmp;
-		if ((*sta)[0] == '\0')
-			ft_libsup(sta);
+		*aux = '\0';
+		*line = ft_strjoin(line2, sta);
+		free (line2);
+		ft_bzero(sta, BUFFER_SIZE + 1);
+		ft_memcpy(sta, buff, ft_strlen(buff));
+		ft_bzero(buff, BUFFER_SIZE + 1);
+		line2 = *line;
+		*line = ft_strjoin(line2, "\n");
+		free (line2);
+		return (1);
 	}
-	else
-	{
-		*line = ft_strdup(*sta);
-		ft_libsup(sta);
-		return (0);
-	}
-	return (1);
+	*line = ft_strjoin(line2, sta);
+	free (line2);
+	ft_bzero(sta, BUFFER_SIZE + 1);
+	return (0);
 }
 
-int	salida(char **sta, char **line, int a, int fd)
+char	*get_next_line(int fd)
 {
-	if (a < 0)
-		return (-1);
-	if (a == 0 && sta[fd] == NULL)
-	{
-		*line = ft_strdup("");
-		return (0);
-	}
-	return (lineas(&sta[fd], line));
-}
-
-int	get_next_line(int fd, char **line)
-{
+	char		*line;
+	static char	sta[256][BUFFER_SIZE + 1];
 	int			a;
-	char		*temp;
-	static char	*sta[4096];
-	char		buff[BUFF_SIZE + 1];
 
-	if (fd < 0 || line == NULL || BUFF_SIZE < 1)
-		return (-1);
-	a = read (fd, buff, BUFF_SIZE);
-	while (a > 0)
+	line = malloc(sizeof(char) * BUFFER_SIZE + 1);
+	if (fd < 0 || fd > 256 || BUFFER_SIZE <= 0 || !line)
+		return (cleaner (line));
+	ft_bzero(line, BUFFER_SIZE + 1);
+	if (seleccionar (sta[fd], &line))
+		return (line);
+	a = read(fd, sta[fd], BUFFER_SIZE);
+	while (a)
 	{
-		buff[a] = 0;
-		if (sta[fd] == NULL)
-			sta[fd] = ft_strdup(buff);
-		else
-		{
-			temp = ft_strjoin(sta[fd], buff);
-			free(sta[fd]);
-			sta[fd] = temp;
-		}
-		if (ft_strrchr(sta[fd], '\n'))
-			break ;
-		a = read (fd, buff, BUFF_SIZE);
+		if (seleccionar(sta[fd], &line))
+			return (line);
+		else if (a == -1)
+			return (cleaner (line));
+		a = read(fd, sta[fd], BUFFER_SIZE);
 	}
-	return (salida(sta, line, a, fd));
+	if (line[0] == '\0')
+		return (cleaner (line));
+	return (line);
 }
